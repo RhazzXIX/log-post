@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Home component Renders on screen 1`] = `
+<div>
+  <main
+    class="main"
+  >
+    <p>
+      Hello Up-skilling World!
+    </p>
+  </main>
+</div>
+`;
