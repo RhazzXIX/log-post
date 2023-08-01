@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Header component Renders on screen 1`] = `
+<div>
+  <header>
+    <div
+      class="widthLimiter"
+    >
+      <a
+        href="/"
+      >
+        <h1>
+          Log Pose
+        </h1>
+      </a>
+      <button>
+        Log in
+      </button>
+      <button>
+        Sign up
+      </button>
+    </div>
+  </header>
+</div>
+`;
