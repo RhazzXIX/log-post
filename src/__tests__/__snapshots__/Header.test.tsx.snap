@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Header component Renders on screen 1`] = `
+exports[`Header component Renders on screen. 1`] = `
 <div>
   <header>
     <div

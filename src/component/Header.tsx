@@ -1,5 +1,13 @@
 import Link from "next/link";
-const Header = ({ user }: { user?: IUser }) => {
+const Header = ({
+  user,
+  handleLogin,
+  handleSignUp,
+}: {
+  user?: IUser;
+  handleLogin: () => void;
+  handleSignUp: () => void;
+}) => {
   // Render jsx element.
   return (
     <header>
@@ -14,8 +22,8 @@ const Header = ({ user }: { user?: IUser }) => {
           </Link>
         ) : (
           <>
-            <button>Log in</button>
-            <button>Sign up</button>
+            <button onClick={handleLogin}>Log in</button>
+            <button onClick={handleSignUp}>Sign up</button>
           </>
         )}
       </div>
