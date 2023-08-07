@@ -1,5 +1,6 @@
 "use client";
 import { ChangeEvent, FormEvent, useState } from "react";
+import Loading from "./Loading";
 
 export default function UserForm({ version }: { version: string }) {
   // Component state and variables.
@@ -9,6 +10,7 @@ export default function UserForm({ version }: { version: string }) {
   const [formErrorMessages, setFormErrorMessages] = useState<IFormErrMessage[]>(
     []
   );
+  const [loading, setLoading] = useState(false);
 
   // Fetch url
   const formUrl =
@@ -71,9 +73,10 @@ export default function UserForm({ version }: { version: string }) {
       formData.passwordConfirmation = passwordConfirmation;
     }
 
-    // reset Form Error messages.
+    // Reset Form Error messages.
     setFormErrorMessages([]);
-
+    // Set loading
+    setLoading(true)
     // Fetch data
     try {
       // Response
@@ -89,7 +92,6 @@ export default function UserForm({ version }: { version: string }) {
       // Response data
       const apiData: IFormErrMessage[] | signUpOkResponse =
         await response.json();
-
       // Check if response is ok.
       if (response.ok) {
         // Set user
@@ -113,6 +115,7 @@ export default function UserForm({ version }: { version: string }) {
           }
         );
       }
+      setLoading(false);
     } catch (err) {
       throw new Error((err as Error).message);
     }
@@ -172,7 +175,7 @@ export default function UserForm({ version }: { version: string }) {
           )}
         </label>
       )}
-      <button type="submit">Submit</button>
+      {loading ? <Loading /> : <button type="submit">Submit</button>}
     </form>
   );
 }
