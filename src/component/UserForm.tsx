@@ -6,10 +6,27 @@ export default function UserForm({ version }: { version: string }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
-  const url =
+  const [formErrorMessages, setFormErrorMessages] = useState<IFormErrMessage[]>(
+    []
+  );
+
+  // Fetch url
+  const formUrl =
     version === "sign-up"
       ? "https://blog-api-86j6.onrender.com/users"
       : "https://blog-api-86j6.onrender.com/session";
+
+  // Error messages
+  const [usernameError] = formErrorMessages.filter(
+    (errorMessage) => errorMessage.field === "username"
+  );
+
+  const [passwordError] = formErrorMessages.filter(
+    (errorMessage) => errorMessage.field === "password"
+  );
+  const [passwordConfirmationError] = formErrorMessages.filter(
+    (errorMessage) => errorMessage.field === "passwordConfirmation"
+  );
 
   // User input handlers.
   const handleUsernameInput = (e: ChangeEvent<HTMLInputElement>) => {
@@ -27,7 +44,7 @@ export default function UserForm({ version }: { version: string }) {
   // Form submission handler.
   const handleSubmitForm = async (e: FormEvent) => {
     e.preventDefault();
-    
+
     // Form data to be sent
     const formData: {
       username: string;
@@ -39,30 +56,71 @@ export default function UserForm({ version }: { version: string }) {
     };
 
     // Logic to add password confirmation incase of sign-up version.
-    if (version === "sign-up")
+    if (version === "sign-up") {
+      // Local validation.
+      if (password !== passwordConfirmation) {
+        setFormErrorMessages([
+          {
+            message: "Password and password confirmation do not match.",
+            value: passwordConfirmation,
+            field: "passwordConfirmation",
+          },
+        ]);
+        return;
+      }
       formData.passwordConfirmation = passwordConfirmation;
-    
+    }
+
+    // reset Form Error messages.
+    setFormErrorMessages([]);
+
     // Fetch data
-    const apiData = await fetch(url, {
-      mode: "cors",
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    })
-      .then((response) => {
-        return response.json();
-      })
-      .catch((error: Error) => {
-        throw new Error(error.message);
+    try {
+      // Response
+      const response = await fetch(formUrl, {
+        mode: "cors",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       });
-    
-    console.log(apiData);
+
+      // Response data
+      const apiData: IFormErrMessage[] | signUpOkResponse =
+        await response.json();
+
+      // Check if response is ok.
+      if (response.ok) {
+        // Set user
+        console.log(apiData);
+      } else {
+        // Set API data for form error message.
+        setFormErrorMessages(apiData as IFormErrMessage[]);
+        (apiData as IFormErrMessage[]).forEach(
+          (errorMessage: IFormErrMessage) => {
+            switch (errorMessage.field) {
+              case "username":
+                setUsername(errorMessage.value);
+                break;
+              case "password":
+                setPassword(errorMessage.value);
+                break;
+              case "passwordConfirmation":
+                setPasswordConfirmation(errorMessage.value);
+                break;
+            }
+          }
+        );
+      }
+    } catch (err) {
+      throw new Error((err as Error).message);
+    }
   };
 
+  // Render form
   return (
-    <form action="" method="POST" onSubmit={handleSubmitForm}>
+    <form action="" method="POST" onSubmit={handleSubmitForm} id="userForm">
       <label htmlFor="username">
         Username:
         <input
@@ -70,8 +128,14 @@ export default function UserForm({ version }: { version: string }) {
           id="username"
           name="username"
           onChange={handleUsernameInput}
+          minLength={3}
           value={username}
+          required
         />
+        {/* Logic for rendering error message. */}
+        {usernameError && (
+          <p className="formErrorMessage">{usernameError.message}</p>
+        )}
       </label>
       <label htmlFor="password">
         Password:
@@ -80,9 +144,15 @@ export default function UserForm({ version }: { version: string }) {
           name="password"
           id="password"
           onChange={handlePasswordInput}
+          minLength={5}
           value={password}
+          required
         />
+        {passwordError && (
+          <p className="formErrorMessage">{passwordError.message}</p>
+        )}
       </label>
+
       {/* Logic to show password confirmation for version sign-up */}
       {version === "sign-up" && (
         <label htmlFor="passwordConfirmation">
@@ -93,7 +163,13 @@ export default function UserForm({ version }: { version: string }) {
             id="passwordConfirmation"
             onChange={handlePasswordConfirmation}
             value={passwordConfirmation}
+            required
           />
+          {passwordConfirmationError && (
+            <p className="formErrorMessage">
+              {passwordConfirmationError.message}
+            </p>
+          )}
         </label>
       )}
       <button type="submit">Submit</button>

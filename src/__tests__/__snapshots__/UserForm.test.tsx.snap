@@ -4,6 +4,7 @@ exports[`UserForm component Renders on screen 1`] = `
 <div>
   <form
     action=""
+    id="userForm"
     method="POST"
   >
     <label
@@ -12,6 +13,7 @@ exports[`UserForm component Renders on screen 1`] = `
       Username:
       <input
         id="username"
+        minlength="3"
         name="username"
         type="text"
         value=""
@@ -23,6 +25,7 @@ exports[`UserForm component Renders on screen 1`] = `
       Password:
       <input
         id="password"
+        minlength="5"
         name="password"
         type="password"
         value=""

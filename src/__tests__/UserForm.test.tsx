@@ -1,11 +1,16 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import UserForm from "@/component/UserForm";
-import userevent from "@testing-library/user-event";
+import userEvent from "@testing-library/user-event";
 
 const fetch = (global.fetch = jest.fn());
 
-const user = userevent.setup();
+Object.defineProperty(window, "location", {
+  writable: true,
+  value: { reload: jest.fn() },
+});
+
+const user = userEvent.setup();
 
 const userInfo: IUser | undefined = {
   id: "125id",
@@ -26,6 +31,24 @@ const sendData = {
     "Content-Type": "application/json",
   },
 };
+
+const errorMessages = [
+  {
+    message: "Error in username field",
+    value: "user",
+    field: "username",
+  },
+  {
+    message: "Error in password field",
+    value: "user",
+    field: "password",
+  },
+  {
+    message: "Error in passwordConfirmation field",
+    value: "user",
+    field: "passwordConfirmation",
+  },
+];
 
 describe("UserForm component", () => {
   it("Renders on screen", () => {
@@ -50,6 +73,7 @@ describe("UserForm component", () => {
 
     it("Let's the user sign-up", async () => {
       (fetch as jest.Mock).mockResolvedValue({
+        ok: true,
         json: () => Promise.resolve({ message: "Response ok", userInfo }),
       });
 
@@ -85,6 +109,7 @@ describe("UserForm component", () => {
 
     it("Let's the user log-in", async () => {
       (fetch as jest.Mock).mockResolvedValue({
+        ok: true,
         json: () => Promise.resolve({ message: "Response ok", userInfo }),
       });
 
@@ -113,6 +138,43 @@ describe("UserForm component", () => {
         }),
         ...sendData,
       });
+    });
+
+    it("Informs the user about input errors.", async () => {
+      (fetch as jest.Mock).mockResolvedValue({
+        ok: false,
+        json: () => Promise.resolve(errorMessages),
+      });
+
+      render(<UserForm key={"log-in"} version={"sign-up"} />);
+
+      const usernameInput = screen.getByLabelText(/Username/);
+      const passwordInput = screen.getByLabelText("Password:");
+      const passwordConfirmationInput = screen.getByLabelText(/confirm/i);
+      const submitBtn = screen.getByRole("button", { name: "Submit" });
+
+      await user.type(usernameInput, userInput.username);
+      await user.type(passwordInput, userInput.password);
+      await user.type(
+        passwordConfirmationInput,
+        userInput.passwordConfirmation
+      );
+
+      expect(
+        screen.queryByText(errorMessages[0].message)
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(errorMessages[1].message)
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(errorMessages[2].message)
+      ).not.toBeInTheDocument();
+
+      await user.click(submitBtn);
+
+      expect(screen.getByText(errorMessages[0].message)).toBeInTheDocument();
+      expect(screen.getByText(errorMessages[1].message)).toBeInTheDocument();
+      expect(screen.getByText(errorMessages[2].message)).toBeInTheDocument();
     });
   });
 });
