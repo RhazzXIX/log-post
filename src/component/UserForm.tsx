@@ -2,7 +2,15 @@
 import { ChangeEvent, FormEvent, useState } from "react";
 import Loading from "./Loading";
 
-export default function UserForm({ version }: { version: string }) {
+export default function UserForm({
+  version,
+  setUser,
+  closeForm,
+}: {
+  version: string;
+  setUser: () => void;
+  closeForm: () => void;
+}) {
   // Component state and variables.
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -75,8 +83,10 @@ export default function UserForm({ version }: { version: string }) {
 
     // Reset Form Error messages.
     setFormErrorMessages([]);
+
     // Set loading
-    setLoading(true)
+    setLoading(true);
+
     // Fetch data
     try {
       // Response
@@ -92,6 +102,7 @@ export default function UserForm({ version }: { version: string }) {
       // Response data
       const apiData: IFormErrMessage[] | signUpOkResponse =
         await response.json();
+
       // Check if response is ok.
       if (response.ok) {
         // Set user
@@ -115,6 +126,8 @@ export default function UserForm({ version }: { version: string }) {
           }
         );
       }
+
+      // Close loading.
       setLoading(false);
     } catch (err) {
       throw new Error((err as Error).message);
@@ -124,6 +137,9 @@ export default function UserForm({ version }: { version: string }) {
   // Render form
   return (
     <form action="" method="POST" onSubmit={handleSubmitForm} id="userForm">
+      <button type="button" className="closeBtn" onClick={closeForm}>
+        x
+      </button>
       <label htmlFor="username">
         Username:
         <input
