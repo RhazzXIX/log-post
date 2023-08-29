@@ -23,8 +23,8 @@ export default function UserForm({
   // Fetch url
   const formUrl =
     version === "sign-up"
-      ? "https://blog-api-86j6.onrender.com/users"
-      : "https://blog-api-86j6.onrender.com/session";
+      ? "http://localhost:3050/users"
+      : "http://localhost:3050/session";
 
   // Error messages
   const [usernameError] = formErrorMessages.filter(
@@ -97,6 +97,7 @@ export default function UserForm({
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
+        credentials: 'include',
       });
 
       // Response data
@@ -107,6 +108,7 @@ export default function UserForm({
       if (response.ok) {
         // Set user
         console.log(apiData);
+        window.location.reload();
       } else {
         // Set API data for form error message.
         setFormErrorMessages(apiData as IFormErrMessage[]);
